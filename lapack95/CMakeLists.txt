@@ -1,5 +1,7 @@
-cmake_minimum_required (VERSION 3.3)
-project(fortran2018array Fortran C)  # C is NECESSARY for MKL detection!
+cmake_minimum_required (VERSION 3.11)  # 3.11 FetchContent
+project(fortran2018array Fortran C
+  DESCRIPTION "Show LAPACK95 with MKL and Netlib")  # C is NECESSARY for MKL detection!
+
 enable_testing()
 
 get_directory_property(hasParent PARENT_DIRECTORY)
@@ -41,7 +43,18 @@ if(USEMKL)
   endif()
   
 else()
-  find_package(LAPACK)
+  include(FetchContent)
+  
+  FetchContent_Declare(lapack95
+  GIT_REPOSITORY https://github.com/scivision/lapack95.git)
+  
+  FetchContent_GetProperties(lapack95)
+  if(NOT demo_POPULATED)
+    FetchContent_Populate(lapack95)
+    add_subdirectory(${lapack95_SOURCE_DIR} ${lapack95_BINARY_DIR})
+  endif()
+  
+  find_package(LAPACK95)
 endif()
 
 
